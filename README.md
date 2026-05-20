@@ -78,11 +78,11 @@ Create a bot token manually in Telegram, set `TELEGRAM_BOT_TOKEN`, and optionall
 
 ## n8n Setup
 
-Import workflows from `n8n/workflows/`. For portfolio review, import `techgear_automation_canvas_v2_workflow.json`; it is the large connected MVP canvas. Replace placeholder credential names in the n8n UI when enabling real Telegram, Google Sheets, or Supabase integrations. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-event-hub`.
+Import workflows from `n8n/workflows/`. For portfolio review, import `techgear_automation_canvas_v2_workflow.json`; it is the large connected MVP canvas. It includes real n8n AI cluster nodes: AI Agent, Chat Model placeholder, Simple Memory, HTTP Request Tools, and Code Tool. Replace placeholder credential names in the n8n UI when enabling real Telegram, Google Sheets, Supabase, or optional LLM integrations. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-event-hub`.
 
 ## Configured n8n MVP Canvas v2
 
-The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, AI decision routing, ticket operations, SLA jobs, feedback handling, Telegram manager alerts, Google Sheets logging, Supabase CRM mirror branches, and error handling are connected in one support automation workflow.
+The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, AI decision routing, AI Agent drafting with model/memory/tools, ticket operations, SLA jobs, feedback handling, Telegram manager alerts, Google Sheets logging, Supabase CRM mirror branches, and error handling are connected in one support automation workflow.
 
 ![TechGear Store n8n automation canvas v2](docs/assets/techgear-n8n-mvp-canvas-v2.png)
 

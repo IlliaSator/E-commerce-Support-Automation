@@ -2,15 +2,16 @@
 
 Local n8n runs at http://localhost:5678.
 
-Import each JSON file from `n8n/workflows/` manually in the n8n UI. The `techgear_automation_canvas_v2_workflow.json` file is the main connected n8n canvas for portfolio review and end-to-end walkthrough. It shows intake, AI decision routing, ticket ops, SLA, manager review, Google Sheets, Supabase, feedback, and error handling in one editor view. The smaller workflow files keep individual production-style automations easy to inspect.
+Import each JSON file from `n8n/workflows/` manually in the n8n UI. The `techgear_automation_canvas_v2_workflow.json` file is the main connected n8n canvas for portfolio review and end-to-end walkthrough. It shows intake, AI decision routing, an optional AI Agent layer with chat model, memory, and backend tools, ticket ops, SLA, manager review, Google Sheets, Supabase, feedback, and error handling in one editor view. The smaller workflow files keep individual production-style automations easy to inspect.
 
 Credential placeholders:
 
 - `TechGear Telegram Bot Placeholder`
 - `TechGear Google Sheets Placeholder`
 - `TechGear Supabase Placeholder`
+- `TechGear OpenAI Placeholder`
 
-Replace placeholders with real credentials in n8n UI. Do not commit exported workflows containing real credentials.
+Replace placeholders with real credentials in n8n UI. The AI Agent/Chat Model section is optional and should stay disabled or unexecuted until an LLM credential is configured. Do not commit exported workflows containing real credentials.
 
 Docker network URLs:
 
@@ -28,6 +29,6 @@ Optional environment values:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Google Sheets and Supabase are optional sinks. If they are not configured, the local backend and mock/demo flows still work.
+Google Sheets, Supabase, and the n8n Chat Model are optional sinks/drafting helpers. If they are not configured, the local backend and mock/demo flows still work.
 
 n8n Cloud can use the same workflows after changing backend URLs to a public HTTPS endpoint.
