@@ -1,0 +1,140 @@
+{
+  "name": "TechGear SLA Breach Monitor Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "every-15-minutes",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/sla-breaches",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-sla-breaches",
+      "name": "Fetch SLA Breaches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.count}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "has-breaches",
+      "name": "Has Breaches",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{`SLA breaches detected: ${$json.count}`}}"
+      },
+      "id": "send-sla-alert",
+      "name": "Send SLA Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -80
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Fetch SLA Breaches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SLA Breaches": {
+      "main": [
+        [
+          {
+            "node": "Has Breaches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Breaches": {
+      "main": [
+        [
+          {
+            "node": "Send SLA Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

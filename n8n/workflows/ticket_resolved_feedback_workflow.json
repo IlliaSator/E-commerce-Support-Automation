@@ -1,0 +1,90 @@
+{
+  "name": "TechGear Ticket Resolved Feedback Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "feedback-followup",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "ticket-resolved-webhook",
+      "name": "Ticket Resolved Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{json:{text:`Your TechGear ticket #${$json.ticket_id} was resolved. Please rate support from 1 to 5.`}}];"
+      },
+      "id": "format-feedback-request",
+      "name": "Format Feedback Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_chat_id}}",
+        "text": "={{$json.text}}"
+      },
+      "id": "send-feedback-request",
+      "name": "Send Feedback Request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Ticket Resolved Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Send Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

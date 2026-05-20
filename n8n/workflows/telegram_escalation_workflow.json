@@ -1,0 +1,107 @@
+{
+  "name": "TechGear Telegram Escalation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "support-escalation",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "support-escalation-webhook",
+      "name": "Support Escalation Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { text: `URGENT TechGear ticket #${$json.ticket_id}\nPriority: ${$json.priority}\nIntent: ${$json.intent}\nMessage: ${$json.message_text}` } }];"
+      },
+      "id": "format-manager-alert",
+      "name": "Format Manager Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-telegram-manager-alert",
+      "name": "Send Telegram Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "optional-mock-crm-log",
+      "name": "Optional Mock CRM Log",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        780,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Support Escalation Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Manager Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Manager Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Optional Mock CRM Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

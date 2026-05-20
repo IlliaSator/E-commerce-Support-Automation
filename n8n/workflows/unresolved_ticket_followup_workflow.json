@@ -1,0 +1,129 @@
+{
+  "name": "TechGear Unresolved Ticket Followup Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        }
+      },
+      "id": "hourly-cron",
+      "name": "Hourly Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/tickets/open",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-open-tickets",
+      "name": "Fetch Open Tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const count = Array.isArray($json) ? $json.length : 0; return count ? [{json:{text:`Open TechGear tickets needing review: ${count}`}}] : [];"
+      },
+      "id": "format-followup",
+      "name": "Format Followup",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}"
+      },
+      "id": "send-followup",
+      "name": "Send Followup",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Hourly Cron": {
+      "main": [
+        [
+          {
+            "node": "Fetch Open Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Open Tickets": {
+      "main": [
+        [
+          {
+            "node": "Format Followup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Followup": {
+      "main": [
+        [
+          {
+            "node": "Send Followup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

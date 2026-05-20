@@ -1,0 +1,108 @@
+{
+  "name": "TechGear Google Sheets Logging Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "support-logging",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "support-logging-webhook",
+      "name": "Support Logging Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{json:{timestamp:new Date().toISOString(), event:$json.event, ticket_id:$json.ticket_id, intent:$json.intent, priority:$json.priority}}];"
+      },
+      "id": "format-support-event-row",
+      "name": "Format Support Event Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "PLACEHOLDER_SHEET_ID",
+        "range": "SupportEvents!A:E",
+        "options": {}
+      },
+      "id": "append-google-sheet-row",
+      "name": "Append Google Sheet Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "mock-crm-fallback",
+      "name": "Mock CRM Fallback",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        520,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Support Logging Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Support Event Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Support Event Row": {
+      "main": [
+        [
+          {
+            "node": "Append Google Sheet Row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mock CRM Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

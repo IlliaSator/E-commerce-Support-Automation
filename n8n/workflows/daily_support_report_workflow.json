@@ -1,0 +1,130 @@
+{
+  "name": "TechGear Daily Support Report Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 18,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "daily-cron",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/daily",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-daily-analytics",
+      "name": "Fetch Daily Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const d=$json; return [{json:{text:`Daily TechGear report\nMessages: ${d.total_messages}\nAuto-resolved: ${d.auto_resolved_messages}\nTickets: ${d.created_tickets} (${d.open_tickets} open)\nComplaints: ${d.complaints}\nSLA breaches: ${d.sla_breaches}\nAI auto-resolution: ${Math.round((d.ai_auto_resolution_rate||0)*100)}%`}}];"
+      },
+      "id": "format-daily-report",
+      "name": "Format Daily Report",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}"
+      },
+      "id": "send-telegram-daily-report",
+      "name": "Send Telegram Daily Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Cron": {
+      "main": [
+        [
+          {
+            "node": "Fetch Daily Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Daily Analytics": {
+      "main": [
+        [
+          {
+            "node": "Format Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}

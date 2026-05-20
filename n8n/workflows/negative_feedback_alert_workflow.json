@@ -1,0 +1,116 @@
+{
+  "name": "TechGear Negative Feedback Alert Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "negative-feedback",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "feedback-webhook",
+      "name": "Feedback Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.rating}}",
+              "operation": "smallerEqual",
+              "value2": 2
+            }
+          ]
+        }
+      },
+      "id": "rating-<=-2",
+      "name": "Rating <= 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{`Negative feedback for ticket #${$json.ticket_id}: rating ${$json.rating}. ${$json.comment || \"\"}`}}"
+      },
+      "id": "notify-manager",
+      "name": "Notify Manager",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -80
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "log-feedback",
+      "name": "Log Feedback",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        520,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Feedback Webhook": {
+      "main": [
+        [
+          {
+            "node": "Rating <= 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rating <= 2": {
+      "main": [
+        [
+          {
+            "node": "Notify Manager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "techgear-support-mvp"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-workflow"
+}
