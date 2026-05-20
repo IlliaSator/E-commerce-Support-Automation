@@ -16,13 +16,13 @@ train:
 
 evaluate:
 	python scripts/evaluate_classifier.py
-	python scripts/evaluate_ai_system.py
+	docker compose exec backend python scripts/evaluate_ai_system.py
 
 seed:
-	python scripts/seed_db.py
+	docker compose exec backend python scripts/seed_db.py
 
 demo:
-	python scripts/demo_conversation.py
+	docker compose exec backend python scripts/demo_conversation.py
 
 up:
 	docker compose up --build

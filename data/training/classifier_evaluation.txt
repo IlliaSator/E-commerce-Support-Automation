@@ -1,0 +1,16 @@
+                      precision    recall  f1-score   support
+
+           complaint       1.00      0.50      0.67         6
+   delivery_question       1.00      0.25      0.40         4
+         human_agent       0.17      1.00      0.29         3
+        order_status       1.00      0.67      0.80         6
+    payment_question       1.00      0.25      0.40         4
+product_availability       1.00      0.80      0.89         5
+       return_refund       1.00      0.80      0.89         5
+                spam       1.00      0.50      0.67         2
+             unknown       1.00      0.50      0.67         2
+            warranty       1.00      1.00      1.00         3
+
+            accuracy                           0.62        40
+           macro avg       0.92      0.63      0.67        40
+        weighted avg       0.94      0.62      0.69        40

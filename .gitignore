@@ -23,3 +23,6 @@ postgres_data/
 n8n_data/
 logs/
 *.log
+*.db
+*.sqlite
+*.sqlite3

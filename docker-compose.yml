@@ -20,7 +20,8 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://ecommerce_user:ecommerce_password@postgres:5432/ecommerce_support}
       BACKEND_HOST: 0.0.0.0
@@ -38,7 +39,8 @@ services:
       context: .
       dockerfile: bot/Dockerfile
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
     depends_on:
@@ -49,7 +51,8 @@ services:
       context: .
       dockerfile: dashboard/Dockerfile
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
     ports:
