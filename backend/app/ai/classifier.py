@@ -6,7 +6,7 @@ import re
 
 import joblib
 
-from backend.app.ai.urgency import detect_urgency, normalize_text
+from backend.app.ai.urgency import normalize_text
 
 MODEL_PATH = Path("data/training/intent_classifier.joblib")
 
@@ -54,9 +54,33 @@ def _rule_classify(text: str) -> ClassificationResult | None:
         },
     ):
         return ClassificationResult("human_agent", 0.94)
-    if detect_urgency(normalized) or _contains_any(
+    complaint_terms = {
+        "broken",
+        "arrived broken",
+        "damaged",
+        "scam",
+        "fraud",
+        "angry",
+        "complaint",
+        "lawyer",
+        "lawsuit",
+        "police",
+        "unacceptable",
+        "обман",
+        "мошенники",
+        "жалоба",
+        "юрист",
+        "суд",
+        "полиция",
+        "ужасно",
+        "отвратительно",
+        "сломанный",
+        "поврежден",
+        "повреждён",
+    }
+    if _contains_any(
         normalized,
-        {"broken", "arrived broken", "damaged", "lawyer", "lawsuit", "обман", "сломанный", "суд"},
+        complaint_terms,
     ):
         return ClassificationResult("complaint", 0.95)
     if _contains_any(
