@@ -78,11 +78,11 @@ Create a bot token manually in Telegram, set `TELEGRAM_BOT_TOKEN`, and optionall
 
 Import workflows from `n8n/workflows/`. Replace placeholder credential names in the n8n UI. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-escalation`.
 
-## Finished Project Snapshot
+## Configured n8n MVP Canvas
 
-The screenshot below shows the running MVP as one connected support automation system: Telegram intake, FastAPI AI orchestration, PostgreSQL, n8n automations, human review, and the operations dashboard.
+The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, scheduled SLA/report jobs, feedback handling, Telegram manager alerts, and mock CRM logging are connected in one support automation workflow.
 
-![TechGear Store support automation MVP](docs/assets/techgear-mvp-overview.png)
+![TechGear Store unified n8n support automation canvas](docs/assets/techgear-n8n-mvp-canvas.png)
 
 ## Demo Scenarios
 

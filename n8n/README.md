@@ -2,6 +2,8 @@
 
 Import the workflow JSON files from `n8n/workflows/` into local n8n or n8n Cloud.
 
+`techgear_unified_mvp_workflow.json` is a connected n8n canvas for demo and portfolio screenshots. It shows backend webhooks, SLA checks, reports, feedback, Telegram alerts, and mock CRM logging in one editor view. The separate workflow files remain available for focused business automations.
+
 The workflows intentionally use placeholder credential names:
 
 - `TechGear Telegram Bot Placeholder`

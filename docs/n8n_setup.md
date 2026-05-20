@@ -2,7 +2,7 @@
 
 Local n8n runs at http://localhost:5678.
 
-Import each JSON file from `n8n/workflows/` manually in the n8n UI.
+Import each JSON file from `n8n/workflows/` manually in the n8n UI. The `techgear_unified_mvp_workflow.json` file is a connected n8n canvas for portfolio review and end-to-end walkthrough; the other workflow files keep the individual production-style automations easy to inspect.
 
 Credential placeholders:
 

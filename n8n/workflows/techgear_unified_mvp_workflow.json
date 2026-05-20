@@ -1,0 +1,899 @@
+{
+  "name": "TechGear Unified Support Automation MVP",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "support-event-hub",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "backend-support-event-webhook",
+      "name": "Backend Support Event Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -540
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, route: $json.event_type || $json.intent || 'support_event', should_escalate: Boolean($json.escalation || $json.escalated || ['urgent','high'].includes($json.priority)) } }];"
+      },
+      "id": "normalize-support-event",
+      "name": "Normalize Support Event",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        -540
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.should_escalate}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "requires-manager-escalation",
+      "name": "Requires Manager Escalation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -540
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{`TechGear escalation: ticket #${$json.ticket_id || 'new'}\nPriority: ${$json.priority || 'normal'}\nIntent: ${$json.intent || $json.route}\nMessage: ${$json.message_text || $json.summary || 'See backend event'}`}}",
+        "additionalFields": {}
+      },
+      "id": "send-manager-escalation",
+      "name": "Send Manager Escalation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -640
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "log-routine-event",
+      "name": "Log Routine Event",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -440
+      ]
+    },
+    {
+      "parameters": {
+        "path": "feedback-followup",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "ticket-resolved-webhook",
+      "name": "Ticket Resolved Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `TechGear Store: your support ticket #${$json.ticket_id} was resolved. Please reply with a rating from 1 to 5.` } }];"
+      },
+      "id": "prepare-feedback-request",
+      "name": "Prepare Feedback Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_chat_id || $env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-customer-feedback-request",
+      "name": "Send Customer Feedback Request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -260
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "negative-feedback",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "customer-feedback-webhook",
+      "name": "Customer Feedback Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.rating}}",
+              "operation": "smallerEqual",
+              "value2": 2
+            }
+          ]
+        }
+      },
+      "id": "negative-feedback-check",
+      "name": "Negative Feedback Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        260,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{`Negative feedback for ticket #${$json.ticket_id}: rating ${$json.rating}. ${$json.comment || ''}`}}",
+        "additionalFields": {}
+      },
+      "id": "send-negative-feedback-alert",
+      "name": "Send Negative Feedback Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -120
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "log-positive-feedback",
+      "name": "Log Positive Feedback",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        520,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "sla-monitor-cron",
+      "name": "SLA Monitor Every 15 Minutes",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/sla-breaches",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-sla-breaches",
+      "name": "Fetch SLA Breaches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.count || ($json.breaches ? $json.breaches.length : 0)}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "sla-breaches-exist",
+      "name": "SLA Breaches Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        520,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{`SLA breach alert: ${$json.count || ($json.breaches ? $json.breaches.length : 0)} ticket(s) need manager action.`}}",
+        "additionalFields": {}
+      },
+      "id": "send-sla-alert",
+      "name": "Send SLA Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        140
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "sla-ok-no-action",
+      "name": "SLA OK - No Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        780,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 18,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "daily-report-cron",
+      "name": "Daily Report Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/daily",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-daily-analytics",
+      "name": "Fetch Daily Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const d=$json; return [{json:{text:`Daily TechGear report\nMessages: ${d.total_messages}\nAuto-resolved: ${d.auto_resolved_messages}\nTickets: ${d.created_tickets} (${d.open_tickets} open)\nComplaints: ${d.complaints}\nSLA breaches: ${d.sla_breaches}\nAI auto-resolution: ${Math.round((d.ai_auto_resolution_rate||0)*100)}%`}}];"
+      },
+      "id": "format-daily-report",
+      "name": "Format Daily Report",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-daily-manager-report",
+      "name": "Send Daily Manager Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        520
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "weekday": "monday",
+              "hour": 9,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "weekly-summary-cron",
+      "name": "Weekly Summary Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/weekly",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-weekly-analytics",
+      "name": "Fetch Weekly Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const d=$json; return [{json:{text:`Weekly TechGear summary\nMessages: ${d.total_messages}\nTickets: ${d.created_tickets}\nOpen: ${d.open_tickets}\nComplaints: ${d.complaints}\nSLA breaches: ${d.sla_breaches}\nAuto-resolution: ${Math.round((d.ai_auto_resolution_rate||0)*100)}%`}}];"
+      },
+      "id": "format-weekly-summary",
+      "name": "Format Weekly Summary",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-weekly-manager-summary",
+      "name": "Send Weekly Manager Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        780
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 60,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "unresolved-followup-cron",
+      "name": "Unresolved Ticket Followup Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/tickets/open?older_than_minutes=60",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-old-open-tickets",
+      "name": "Fetch Old Open Tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        260,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const tickets = Array.isArray($json) ? $json : ($json.data || []); return [{ json: { text: `TechGear follow-up: ${tickets.length} unresolved ticket(s) older than threshold need review.` } }];"
+      },
+      "id": "format-followup-alert",
+      "name": "Format Followup Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-followup-manager-alert",
+      "name": "Send Followup Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        780,
+        1040
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "unified-audit-log",
+      "name": "Unified Audit Log / Mock CRM",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Backend Support Event Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Support Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Support Event": {
+      "main": [
+        [
+          {
+            "node": "Requires Manager Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Requires Manager Escalation": {
+      "main": [
+        [
+          {
+            "node": "Send Manager Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Routine Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Manager Escalation": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Routine Event": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Resolved Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Send Customer Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Customer Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Feedback Webhook": {
+      "main": [
+        [
+          {
+            "node": "Negative Feedback Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Negative Feedback Check": {
+      "main": [
+        [
+          {
+            "node": "Send Negative Feedback Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Positive Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Negative Feedback Alert": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Positive Feedback": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA Monitor Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Fetch SLA Breaches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SLA Breaches": {
+      "main": [
+        [
+          {
+            "node": "SLA Breaches Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA Breaches Exist": {
+      "main": [
+        [
+          {
+            "node": "Send SLA Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SLA OK - No Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SLA Alert": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA OK - No Action": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Report Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Daily Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Daily Analytics": {
+      "main": [
+        [
+          {
+            "node": "Format Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Manager Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Daily Manager Report": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Summary Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Analytics": {
+      "main": [
+        [
+          {
+            "node": "Format Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Weekly Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Manager Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Weekly Manager Summary": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unresolved Ticket Followup Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Old Open Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Old Open Tickets": {
+      "main": [
+        [
+          {
+            "node": "Format Followup Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Followup Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Followup Manager Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Followup Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / Mock CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 7,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-unified-workflow",
+  "active": false
+}
