@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "url": "http://backend:8000/tickets/open",
+        "url": "http://backend:8000/tickets/open?older_than_minutes=60",
         "method": "GET",
         "sendHeaders": true,
         "headerParameters": {
@@ -118,12 +118,9 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": [
-    {
-      "name": "techgear-support-mvp"
-    }
-  ],
+  "tags": [],
   "triggerCount": 1,
   "updatedAt": "2026-05-20T00:00:00.000Z",
-  "versionId": "placeholder-local-workflow"
+  "versionId": "placeholder-local-workflow",
+  "active": false
 }

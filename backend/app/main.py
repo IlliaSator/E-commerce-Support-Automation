@@ -14,6 +14,7 @@ from backend.app.schemas.api import (
     SupportMessageIn,
     SupportMessageOut,
     TicketCreate,
+    TicketDetailRead,
     TicketRead,
     TicketResolve,
     TicketSummaryIn,
@@ -77,10 +78,10 @@ def list_tickets(db: Session = Depends(get_db)):
 
 
 @app.get("/tickets/open", response_model=list[TicketRead], dependencies=[Depends(require_admin_api_key)])
-def open_tickets(db: Session = Depends(get_db)):
+def open_tickets(older_than_minutes: int | None = None, db: Session = Depends(get_db)):
     from backend.app.services.ticket_service import list_open_tickets
 
-    return list_open_tickets(db)
+    return list_open_tickets(db, older_than_minutes=older_than_minutes)
 
 
 @app.get("/tickets/sla-breaches", response_model=list[TicketRead], dependencies=[Depends(require_admin_api_key)])
@@ -95,6 +96,17 @@ def get_ticket(ticket_id: int, db: Session = Depends(get_db)):
     from backend.app.services.ticket_service import get_ticket_or_404
 
     return get_ticket_or_404(db, ticket_id)
+
+
+@app.get(
+    "/tickets/{ticket_id}/detail",
+    response_model=TicketDetailRead,
+    dependencies=[Depends(require_admin_api_key)],
+)
+def get_ticket_detail(ticket_id: int, db: Session = Depends(get_db)):
+    from backend.app.services.ticket_service import get_ticket_detail
+
+    return get_ticket_detail(db, ticket_id)
 
 
 @app.post("/tickets", response_model=TicketRead, dependencies=[Depends(require_admin_api_key)])
@@ -158,6 +170,13 @@ def analytics_auto_resolution_rate(db: Session = Depends(get_db)):
     from backend.app.services.analytics_service import get_auto_resolution_rate
 
     return get_auto_resolution_rate(db)
+
+
+@app.get("/analytics/recent-escalations", dependencies=[Depends(require_admin_api_key)])
+def analytics_recent_escalations(limit: int = 20, db: Session = Depends(get_db)):
+    from backend.app.services.analytics_service import get_recent_escalations
+
+    return get_recent_escalations(db, limit=limit)
 
 
 @app.get("/analytics/ai-metrics", dependencies=[Depends(require_admin_api_key)])

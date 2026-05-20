@@ -50,14 +50,15 @@ try:
     tickets = get_json("/tickets/open")
     breaches = get_json("/analytics/sla-breaches")
     intents = get_json("/analytics/intent-distribution")
+    escalations = get_json("/analytics/recent-escalations")
 except Exception as exc:
     st.error(f"Backend unavailable: {exc}")
     st.stop()
 
 metric_row(summary)
 
-tab_overview, tab_tickets, tab_sla, tab_ai, tab_detail = st.tabs(
-    ["Overview", "Open Tickets", "SLA Breaches", "AI Metrics", "Ticket Detail"]
+tab_overview, tab_tickets, tab_sla, tab_escalations, tab_ai, tab_detail = st.tabs(
+    ["Overview", "Open Tickets", "SLA Breaches", "Escalations", "AI Metrics", "Ticket Detail"]
 )
 
 with tab_overview:
@@ -72,6 +73,12 @@ with tab_overview:
     with right:
         st.subheader("Daily Summary")
         st.json(get_json("/analytics/daily"))
+        complaint_rate = (
+            summary["complaints"] / summary["created_tickets"]
+            if summary["created_tickets"]
+            else 0
+        )
+        st.metric("Complaint rate", f"{complaint_rate * 100:.1f}%")
 
 with tab_tickets:
     st.subheader("Open Tickets")
@@ -80,6 +87,10 @@ with tab_tickets:
 with tab_sla:
     st.subheader("SLA Breaches")
     dataframe(breaches.get("breaches", []), "sla-breaches")
+
+with tab_escalations:
+    st.subheader("Recent Escalations")
+    dataframe(escalations, "recent-escalations")
 
 with tab_ai:
     st.subheader("AI Metrics")
@@ -100,7 +111,7 @@ with tab_detail:
     ticket_id = st.number_input("Ticket ID", min_value=1, step=1)
     if st.button("Load ticket"):
         try:
-            ticket = get_json(f"/tickets/{int(ticket_id)}")
+            ticket = get_json(f"/tickets/{int(ticket_id)}/detail")
             st.json(ticket)
         except Exception as exc:
             st.error(f"Could not load ticket: {exc}")

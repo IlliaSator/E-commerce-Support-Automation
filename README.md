@@ -78,6 +78,66 @@ Create a bot token manually in Telegram, set `TELEGRAM_BOT_TOKEN`, and optionall
 
 Import workflows from `n8n/workflows/`. Replace placeholder credential names in the n8n UI. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-escalation`.
 
+## n8n Workflow Screenshots
+
+These screenshots were captured from the local n8n editor after importing the workflow JSON files.
+
+<details>
+<summary>Telegram escalation</summary>
+
+![Telegram escalation workflow](docs/assets/n8n-workflows/telegram-escalation.png)
+
+</details>
+
+<details>
+<summary>Daily support report</summary>
+
+![Daily support report workflow](docs/assets/n8n-workflows/daily-support-report.png)
+
+</details>
+
+<details>
+<summary>SLA breach monitor</summary>
+
+![SLA breach monitor workflow](docs/assets/n8n-workflows/sla-breach-monitor.png)
+
+</details>
+
+<details>
+<summary>Ticket resolved feedback</summary>
+
+![Ticket resolved feedback workflow](docs/assets/n8n-workflows/ticket-resolved-feedback.png)
+
+</details>
+
+<details>
+<summary>Google Sheets / mock CRM logging</summary>
+
+![Google Sheets logging workflow](docs/assets/n8n-workflows/google-sheets-logging.png)
+
+</details>
+
+<details>
+<summary>Unresolved ticket follow-up</summary>
+
+![Unresolved ticket follow-up workflow](docs/assets/n8n-workflows/unresolved-ticket-followup.png)
+
+</details>
+
+<details>
+<summary>Negative feedback alert</summary>
+
+![Negative feedback alert workflow](docs/assets/n8n-workflows/negative-feedback-alert.png)
+
+</details>
+
+<details>
+<summary>Weekly business summary</summary>
+
+![Weekly business summary workflow](docs/assets/n8n-workflows/weekly-business-summary.png)
+
+</details>
+
 ## Demo Scenarios
 
 Try:

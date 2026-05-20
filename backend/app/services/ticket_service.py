@@ -1,5 +1,6 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
+from backend.app.integrations.n8n import emit_n8n_event
 from backend.app.models import AISuggestion, Feedback, Ticket, TicketEvent
 from backend.app.schemas.api import TicketCreate, TicketResolve, TicketUpdate
 from backend.app.services.customer_service import get_or_create_customer
@@ -15,17 +16,52 @@ def get_ticket_or_404(db: Session, ticket_id: int) -> Ticket:
     return ticket
 
 
+def get_ticket_detail(db: Session, ticket_id: int) -> dict:
+    ticket = get_ticket_or_404(db, ticket_id)
+    return {
+        "ticket": ticket,
+        "events": [
+            {
+                "id": event.id,
+                "event_type": event.event_type,
+                "payload": event.payload,
+                "created_at": event.created_at.isoformat(),
+            }
+            for event in ticket.events
+        ],
+        "ai_suggestions": [
+            {
+                "id": suggestion.id,
+                "status": suggestion.status,
+                "suggestion_text": suggestion.suggestion_text,
+                "final_human_reply": suggestion.final_human_reply,
+                "created_at": suggestion.created_at.isoformat(),
+            }
+            for suggestion in ticket.suggestions
+        ],
+        "feedback": [
+            {
+                "id": feedback.id,
+                "rating": feedback.rating,
+                "comment": feedback.comment,
+                "source": feedback.source,
+                "created_at": feedback.created_at.isoformat(),
+            }
+            for feedback in ticket.feedback
+        ],
+    }
+
+
 def list_tickets(db: Session) -> list[Ticket]:
     return db.query(Ticket).order_by(Ticket.created_at.desc()).limit(200).all()
 
 
-def list_open_tickets(db: Session) -> list[Ticket]:
-    return (
-        db.query(Ticket)
-        .filter(Ticket.status.in_(["open", "in_progress", "waiting_customer"]))
-        .order_by(Ticket.sla_due_at.asc())
-        .all()
-    )
+def list_open_tickets(db: Session, older_than_minutes: int | None = None) -> list[Ticket]:
+    query = db.query(Ticket).filter(Ticket.status.in_(["open", "in_progress", "waiting_customer"]))
+    if older_than_minutes is not None:
+        cutoff = datetime.now(UTC) - timedelta(minutes=older_than_minutes)
+        query = query.filter(Ticket.created_at <= cutoff)
+    return query.order_by(Ticket.sla_due_at.asc()).all()
 
 
 def list_sla_breaches(db: Session) -> list[Ticket]:
@@ -110,6 +146,18 @@ def resolve_ticket(db: Session, ticket_id: int, payload: TicketResolve) -> Ticke
             payload=payload.model_dump(exclude_none=True),
         )
     )
+    feedback_payload = {
+        "ticket_id": ticket.id,
+        "customer_id": ticket.customer_id,
+        "telegram_chat_id": ticket.customer.telegram_user_id if ticket.customer else None,
+        "status": ticket.status,
+        "rating": payload.feedback_rating,
+        "comment": payload.feedback_comment,
+        "resolved_at": ticket.resolved_at.isoformat() if ticket.resolved_at else None,
+    }
+    emit_n8n_event(db, "feedback", feedback_payload, ticket_id=ticket.id)
+    if payload.feedback_rating is not None and payload.feedback_rating <= 2:
+        emit_n8n_event(db, "negative_feedback", feedback_payload, ticket_id=ticket.id)
     db.commit()
     db.refresh(ticket)
     return ticket

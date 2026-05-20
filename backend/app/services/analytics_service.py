@@ -107,6 +107,28 @@ def get_ai_metrics(db: Session) -> dict[str, Any]:
     }
 
 
+def get_recent_escalations(db: Session, limit: int = 20) -> list[dict[str, Any]]:
+    rows = (
+        db.query(EscalationEvent)
+        .order_by(EscalationEvent.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return [
+        {
+            "id": row.id,
+            "ticket_id": row.ticket_id,
+            "reason": row.reason,
+            "channel": row.channel,
+            "delivered": row.delivered,
+            "error": row.error,
+            "created_at": row.created_at.isoformat(),
+            "payload": row.payload,
+        }
+        for row in rows
+    ]
+
+
 def _period_report(db: Session, days: int) -> dict[str, Any]:
     since = datetime.now(UTC) - timedelta(days=days)
     summary = get_summary(db)

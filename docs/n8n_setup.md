@@ -17,5 +17,6 @@ Docker network URLs:
 - Escalation webhook: `http://n8n:5678/webhook/support-escalation`
 - Logging webhook: `http://n8n:5678/webhook/support-logging`
 - Feedback webhook: `http://n8n:5678/webhook/feedback-followup`
+- Negative feedback webhook: `http://n8n:5678/webhook/negative-feedback`
 
 n8n Cloud can use the same workflows after changing backend URLs to a public HTTPS endpoint.

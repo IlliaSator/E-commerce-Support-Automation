@@ -97,6 +97,13 @@ class TicketRead(BaseModel):
     escalated: bool
 
 
+class TicketDetailRead(BaseModel):
+    ticket: TicketRead
+    events: list[dict[str, Any]]
+    ai_suggestions: list[dict[str, Any]]
+    feedback: list[dict[str, Any]]
+
+
 class OrderRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

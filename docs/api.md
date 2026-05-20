@@ -11,6 +11,7 @@ Important endpoints:
 - `POST /knowledge/answer`
 - `GET /tickets`
 - `GET /tickets/open`
+- `GET /tickets/{ticket_id}/detail`
 - `GET /tickets/sla-breaches`
 - `POST /tickets`
 - `PATCH /tickets/{ticket_id}`
@@ -21,6 +22,7 @@ Important endpoints:
 - `GET /analytics/intent-distribution`
 - `GET /analytics/sla-breaches`
 - `GET /analytics/ai-metrics`
+- `GET /analytics/recent-escalations`
 - `POST /ai/evaluate-message`
 - `POST /ai/draft-reply`
 - `POST /ai/summarize-ticket`

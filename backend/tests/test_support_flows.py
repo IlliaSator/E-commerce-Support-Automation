@@ -1,7 +1,8 @@
 from backend.app.integrations.n8n import emit_n8n_event
 from backend.app.models import EscalationEvent, Ticket
-from backend.app.schemas.api import SupportMessageIn
+from backend.app.schemas.api import SupportMessageIn, TicketResolve
 from backend.app.services.support_service import handle_message
+from backend.app.services.ticket_service import get_ticket_detail, resolve_ticket
 
 
 def _message(text: str) -> SupportMessageIn:
@@ -90,3 +91,24 @@ def test_n8n_webhook_missing_url_logs_event_locally(db_session):
     assert delivered is False
     event = db_session.query(EscalationEvent).one()
     assert event.error == "webhook_url_not_configured"
+
+
+def test_ticket_resolution_emits_feedback_event_and_detail(db_session):
+    result = handle_message(db_session, _message("I need a refund"))
+    ticket = resolve_ticket(
+        db_session,
+        result.ticket_id,
+        TicketResolve(
+            final_reply="Resolved manually.",
+            ai_suggestion_status="edited",
+            feedback_rating=2,
+            feedback_comment="Still unhappy",
+        ),
+    )
+    assert ticket.status == "resolved"
+    detail = get_ticket_detail(db_session, ticket.id)
+    assert detail["events"][-1]["event_type"] == "resolved"
+    assert detail["feedback"][0]["rating"] == 2
+    reasons = {event.reason for event in db_session.query(EscalationEvent).all()}
+    assert "feedback" in reasons
+    assert "negative_feedback" in reasons

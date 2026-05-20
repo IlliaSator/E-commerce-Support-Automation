@@ -16,6 +16,7 @@ WEBHOOK_ATTRS = {
     "report": "n8n_report_webhook_url",
     "feedback": "n8n_feedback_webhook_url",
     "logging": "n8n_logging_webhook_url",
+    "negative_feedback": "n8n_negative_feedback_webhook_url",
 }
 
 

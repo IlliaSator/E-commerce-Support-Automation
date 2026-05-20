@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     n8n_report_webhook_url: str | None = None
     n8n_feedback_webhook_url: str | None = None
     n8n_logging_webhook_url: str | None = None
+    n8n_negative_feedback_webhook_url: str | None = None
 
     data_dir: Path = Field(default_factory=lambda: Path("data"))
 
