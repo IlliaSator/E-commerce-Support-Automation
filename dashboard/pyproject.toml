@@ -1,0 +1,10 @@
+[project]
+name = "ecommerce-support-dashboard"
+version = "0.1.0"
+description = "Streamlit dashboard for TechGear Store support automation"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.37.0",
+    "httpx>=0.27.0",
+    "pandas>=2.2.0",
+]
