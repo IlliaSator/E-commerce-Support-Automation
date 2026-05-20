@@ -84,7 +84,7 @@ Import workflows from `n8n/workflows/`. For portfolio review, import `techgear_a
 
 The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, AI decision routing, AI Agent drafting with model/memory/tools, ticket operations, SLA jobs, feedback handling, Telegram manager alerts, Google Sheets logging, Supabase CRM mirror branches, and error handling are connected in one support automation workflow.
 
-![TechGear Store n8n automation canvas v2](docs/assets/techgear-n8n-mvp-canvas-v2.png)
+![TechGear Store n8n automation canvas with AI Agent layer](docs/assets/techgear-n8n-mvp-canvas-ai-agent.png)
 
 ## Demo Scenarios
 
