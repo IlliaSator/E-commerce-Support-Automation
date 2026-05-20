@@ -3,150 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "content": "01 Intake / Event Hub\nBackend event hub, support logging webhook, manager decision webhook. Normalizes all incoming n8n events before routing.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-intake",
-      "name": "01 Intake and Event Hub: backend events, manager decisions, logging webhooks",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        -1320
-      ]
-    },
-    {
-      "parameters": {
-        "content": "02 AI Decision Policy\nRoutes auto-resolved, low-confidence, guardrail-blocked and AI-metric events. Backend guardrails remain authoritative.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-ai",
-      "name": "02 AI Decision Policy: auto-resolved, low-confidence review, guardrail blocked",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        -980
-      ]
-    },
-    {
-      "parameters": {
-        "content": "03 Ticket Ops / Escalation\nUrgent complaints and human-review cases notify manager, mirror ticket context, and preserve escalation evidence.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-ticket",
-      "name": "03 Ticket Ops and Escalation: urgent complaints, human review, ticket creation",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        -640
-      ]
-    },
-    {
-      "parameters": {
-        "content": "04 Feedback Loop\nResolved-ticket feedback requests and negative ratings feed manager alerts and CRM/audit records.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-feedback",
-      "name": "04 Feedback Loop: resolved ticket follow-up and negative feedback escalation",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        -300
-      ]
-    },
-    {
-      "parameters": {
-        "content": "05 SLA Monitoring\nPeriodic breach checks, alert formatting, manager notifications, and persistent SLA evidence.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-sla",
-      "name": "05 SLA Monitoring: breach scan, alerting, and SLA evidence logging",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        40
-      ]
-    },
-    {
-      "parameters": {
-        "content": "06 Reporting\nDaily and weekly analytics jobs call FastAPI and send concise manager summaries.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-reports",
-      "name": "06 Reporting: daily and weekly business/AI summaries",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        380
-      ]
-    },
-    {
-      "parameters": {
-        "content": "07 Unresolved Follow-Up\nFinds stale open tickets and reminds managers before SLA risk becomes customer pain.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-followup",
-      "name": "07 Unresolved Follow-Up: stale open tickets need manager attention",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        720
-      ]
-    },
-    {
-      "parameters": {
-        "content": "08 External CRM / Audit\nGoogle Sheets, Supabase mirror, PostgreSQL audit snapshots, and unified audit fanout.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-crm",
-      "name": "08 External CRM Sinks: Google Sheets, Supabase mirror, audit/dead-letter log",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        1060
-      ]
-    },
-    {
-      "parameters": {
-        "content": "09 Error Handling\nWorkflow errors and malformed events go to manager alerting plus manual replay/dead-letter handling.",
-        "height": 130,
-        "width": 400,
-        "color": 7
-      },
-      "id": "lane-errors",
-      "name": "09 Error Handling: n8n error trigger, manager alert, manual replay queue",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -620,
-        1400
-      ]
-    },
-    {
-      "parameters": {
         "path": "support-event-hub",
         "httpMethod": "POST",
         "responseMode": "onReceived"
@@ -1691,8 +1547,8 @@
     },
     {
       "parameters": {
-        "content": "10 AI Agent Orchestration\nReal n8n AI cluster: AI agent, Chat Model, Memory, backend Tools, Structured Output Parser. Drafting only; FastAPI guardrails decide.",
-        "height": 190,
+        "content": "AI Agent Layer\nAI agent + chat model + memory + backend tools + structured parser. Drafting only; FastAPI rules and guardrails decide customer-facing actions.",
+        "height": 180,
         "width": 430,
         "color": 7
       },
@@ -1707,9 +1563,9 @@
     },
     {
       "parameters": {
-        "content": "AI Safety Contract\nAllowed: summarize, draft manager notes, call backend tools. Blocked: refund promises, invented stock, legal advice, bypassing review.",
-        "height": 170,
-        "width": 360,
+        "content": "AI Safety Contract\nNo refund promises, no invented stock/tracking, no legal advice, no bypassing human review.",
+        "height": 160,
+        "width": 380,
         "color": 7
       },
       "id": "sticky-ai-agent-safety-contract",
@@ -1717,15 +1573,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1940,
+        1900,
         -1510
       ]
     },
     {
       "parameters": {
-        "content": "Backend Tool Boundary\nTools call FastAPI/PostgreSQL-backed services for orders, products, RAG, tickets, and SLA. No invented business truth.",
-        "height": 170,
-        "width": 380,
+        "content": "Backend Tool Boundary\nTools call FastAPI/PostgreSQL-backed services for orders, products, RAG, tickets, and SLA. The agent cannot create business truth.",
+        "height": 160,
+        "width": 390,
         "color": 7
       },
       "id": "sticky-ai-tool-boundary",
@@ -1739,9 +1595,9 @@
     },
     {
       "parameters": {
-        "content": "AI Response Check\nAgent output becomes review context. Customer-facing sends still depend on backend guardrails and human-in-the-loop policy.",
-        "height": 150,
-        "width": 360,
+        "content": "AI Response Check\nAgent output becomes review context only. Backend guardrails still control whether a reply is sent.",
+        "height": 140,
+        "width": 380,
         "color": 7
       },
       "id": "sticky-agent-guardrail-comment",
@@ -2068,22 +1924,6 @@
     },
     {
       "parameters": {
-        "content": "PostgreSQL Operational Layer\n\nLocal Postgres is the system of record behind FastAPI. These optional n8n DB nodes make audit snapshots visible: AI metrics, support events, ticket state, and SLA evidence.",
-        "width": 420,
-        "height": 180,
-        "color": 7
-      },
-      "id": "sticky-postgresql-ops-layer",
-      "name": "PostgreSQL Ops Layer",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        2140,
-        820
-      ]
-    },
-    {
-      "parameters": {
         "resource": "database",
         "operation": "executeQuery",
         "query": "SELECT COUNT(*) AS ai_interactions_total, AVG(intent_confidence) AS avg_intent_confidence FROM ai_interactions;",
@@ -2094,8 +1934,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1900,
-        920
+        2860,
+        760
       ],
       "credentials": {
         "postgres": {
@@ -2116,8 +1956,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1900,
-        1160
+        2860,
+        920
       ],
       "credentials": {
         "postgres": {
@@ -2138,8 +1978,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1640,
-        1400
+        2860,
+        1080
       ],
       "credentials": {
         "postgres": {
@@ -2160,8 +2000,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1320,
-        1640
+        2860,
+        1240
       ],
       "credentials": {
         "postgres": {
@@ -2169,6 +2009,46 @@
           "name": "TechGear PostgreSQL Placeholder"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "PostgreSQL System of Record\n\nLocal PostgreSQL stores customers, orders, products, messages, tickets, AI interactions, SLA policies, feedback, and escalations. n8n can mirror audit snapshots here through placeholder credentials.",
+        "width": 460,
+        "height": 190,
+        "color": 7
+      },
+      "id": "sticky-postgresql-system-of-record",
+      "name": "PostgreSQL System of Record",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2820,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, postgres_audit_context: true, audited_at: new Date().toISOString() } }];"
+      },
+      "id": "postgres-audit-router",
+      "name": "Postgres Audit Router",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        1000
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "postgres-snapshot-complete",
+      "name": "Postgres Snapshot Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3180,
+        1000
+      ]
     }
   ],
   "connections": {
@@ -2650,11 +2530,6 @@
             "node": "Mirror Manager Decision to Supabase",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Postgres Ticket State Snapshot",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -2719,11 +2594,6 @@
         [
           {
             "node": "Mirror SLA Breach to Supabase",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Postgres SLA Breach Snapshot",
             "type": "main",
             "index": 0
           }
@@ -2968,11 +2838,6 @@
             "node": "Mirror AI Metrics to Supabase",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Postgres AI Interaction Audit",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -2982,11 +2847,6 @@
         [
           {
             "node": "Mirror Support Event to Supabase",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Postgres Support Event Audit",
             "type": "main",
             "index": 0
           }
@@ -3132,11 +2992,59 @@
         ]
       ]
     },
+    "Unified Audit Log / CRM Fanout": {
+      "main": [
+        [
+          {
+            "node": "Postgres Audit Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dead Letter / Manual Replay Queue": {
+      "main": [
+        [
+          {
+            "node": "Postgres Audit Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Audit Router": {
+      "main": [
+        [
+          {
+            "node": "Postgres AI Interaction Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres Support Event Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres Ticket State Snapshot",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres SLA Breach Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Postgres AI Interaction Audit": {
       "main": [
         [
           {
-            "node": "Unified Audit Log / CRM Fanout",
+            "node": "Postgres Snapshot Complete",
             "type": "main",
             "index": 0
           }
@@ -3147,7 +3055,7 @@
       "main": [
         [
           {
-            "node": "Unified Audit Log / CRM Fanout",
+            "node": "Postgres Snapshot Complete",
             "type": "main",
             "index": 0
           }
@@ -3158,7 +3066,7 @@
       "main": [
         [
           {
-            "node": "Unified Audit Log / CRM Fanout",
+            "node": "Postgres Snapshot Complete",
             "type": "main",
             "index": 0
           }
@@ -3169,7 +3077,7 @@
       "main": [
         [
           {
-            "node": "Unified Audit Log / CRM Fanout",
+            "node": "Postgres Snapshot Complete",
             "type": "main",
             "index": 0
           }
