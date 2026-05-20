@@ -19,7 +19,7 @@ Small stores often answer the same Telegram support questions manually: order st
 - Order lookup and product catalog search from seeded data.
 - Guardrails that prevent invented order status, stock, refunds, legal claims, and ungrounded answers.
 - Ticketing, escalation, SLA breach monitoring, and feedback storage.
-- n8n workflows for escalation, reports, SLA checks, feedback, and Google Sheets/mock CRM logging.
+- n8n workflows for escalation, reports, SLA checks, feedback, Google Sheets logging, Supabase CRM mirroring, and error handling.
 - Streamlit dashboard for business and AI metrics.
 - Optional OpenAI provider for drafting only; local/mock mode is default.
 - Tests, CI, seed data, evaluation scripts, and Docker Compose.
@@ -34,12 +34,14 @@ flowchart LR
     API --> AI["Rules + TF-IDF RAG + Optional LLM Drafting"]
     API --> N8N["n8n Workflows"]
     N8N --> Manager["Manager Telegram Alerts"]
+    N8N --> Sheets["Google Sheets Logs"]
+    N8N --> Supabase["Optional Supabase CRM Mirror"]
     API --> Dashboard["Streamlit Dashboard"]
 ```
 
 ## Tech Stack
 
-FastAPI, SQLAlchemy 2, PostgreSQL, Pydantic Settings, aiogram, Streamlit, scikit-learn, n8n, Docker Compose, pytest, ruff, GitHub Actions.
+FastAPI, SQLAlchemy 2, PostgreSQL, Pydantic Settings, aiogram, Streamlit, scikit-learn, n8n, optional Google Sheets/Supabase integrations, Docker Compose, pytest, ruff, GitHub Actions.
 
 ## Quick Start
 
@@ -68,7 +70,7 @@ make demo
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and change only local placeholders. Real Telegram, OpenAI, Google, and n8n credentials are never committed. Backend works without Telegram or OpenAI credentials. Bot enters documented mock/sleep mode when `TELEGRAM_BOT_TOKEN` is empty.
+Copy `.env.example` to `.env` and change only local placeholders. Real Telegram, OpenAI, Google, Supabase, and n8n credentials are never committed. Backend works without Telegram, OpenAI, Google, or Supabase credentials. Bot enters documented mock/sleep mode when `TELEGRAM_BOT_TOKEN` is empty.
 
 ## Telegram Bot Setup
 
@@ -76,13 +78,13 @@ Create a bot token manually in Telegram, set `TELEGRAM_BOT_TOKEN`, and optionall
 
 ## n8n Setup
 
-Import workflows from `n8n/workflows/`. Replace placeholder credential names in the n8n UI. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-escalation`.
+Import workflows from `n8n/workflows/`. For portfolio review, import `techgear_automation_canvas_v2_workflow.json`; it is the large connected MVP canvas. Replace placeholder credential names in the n8n UI when enabling real Telegram, Google Sheets, or Supabase integrations. Backend webhook env vars point to Docker network URLs such as `http://n8n:5678/webhook/support-event-hub`.
 
-## Configured n8n MVP Canvas
+## Configured n8n MVP Canvas v2
 
-The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, scheduled SLA/report jobs, feedback handling, Telegram manager alerts, and mock CRM logging are connected in one support automation workflow.
+The screenshot below shows the configured n8n editor canvas for the MVP. Backend webhooks, AI decision routing, ticket operations, SLA jobs, feedback handling, Telegram manager alerts, Google Sheets logging, Supabase CRM mirror branches, and error handling are connected in one support automation workflow.
 
-![TechGear Store unified n8n support automation canvas](docs/assets/techgear-n8n-mvp-canvas.png)
+![TechGear Store n8n automation canvas v2](docs/assets/techgear-n8n-mvp-canvas-v2.png)
 
 ## Demo Scenarios
 
@@ -138,7 +140,7 @@ The Streamlit dashboard shows overview metrics, open tickets, SLA breaches, inte
 
 ## Security Notes
 
-No real secrets are committed. `.env` is ignored. Admin endpoints use `X-Admin-API-Key`, which is MVP-level protection only. Production would need proper auth, webhook signing, rate limiting, audit logging, secret management, and stricter network controls.
+No real secrets are committed. `.env` is ignored. Admin endpoints use `X-Admin-API-Key`, which is MVP-level protection only. n8n workflows use placeholder credential names and environment variable references for Telegram, Google Sheets, and Supabase. Production would need proper auth, webhook signing, rate limiting, audit logging, secret management, and stricter network controls.
 
 ## Limitations
 
@@ -146,7 +148,7 @@ This is a production-style MVP and deployable internal prototype, not enterprise
 
 ## Roadmap
 
-Add migrations, real auth, signed webhooks, richer manager UI, production observability, better multilingual classifier evaluation, real CRM integration, and feedback-driven model iteration.
+Add migrations, real auth, signed webhooks, richer manager UI, production observability, better multilingual classifier evaluation, and feedback-driven model iteration.
 
 ## Commercial Use Case
 

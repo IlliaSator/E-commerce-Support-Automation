@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from backend.app.integrations.n8n import emit_n8n_event
 from backend.app.models import EscalationEvent, Ticket
 from backend.app.schemas.api import SupportMessageIn, TicketResolve
@@ -91,6 +93,58 @@ def test_n8n_webhook_missing_url_logs_event_locally(db_session):
     assert delivered is False
     event = db_session.query(EscalationEvent).one()
     assert event.error == "webhook_url_not_configured"
+
+
+def test_n8n_event_hub_missing_url_does_not_crash(db_session, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.integrations.n8n.get_settings",
+        lambda: SimpleNamespace(
+            n8n_logging_webhook_url=None,
+            n8n_event_hub_webhook_url=None,
+        ),
+    )
+    delivered = emit_n8n_event(db_session, "logging", {"event": "ticket_created"}, ticket_id=12)
+    db_session.commit()
+    assert delivered is False
+    event = db_session.query(EscalationEvent).one()
+    assert event.reason == "logging"
+    assert event.error == "webhook_url_not_configured"
+
+
+def test_n8n_event_hub_failure_logs_fallback_and_continues(db_session, monkeypatch):
+    class FailingClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def post(self, *args, **kwargs):
+            raise RuntimeError("hub unavailable")
+
+    monkeypatch.setattr(
+        "backend.app.integrations.n8n.get_settings",
+        lambda: SimpleNamespace(
+            n8n_logging_webhook_url=None,
+            n8n_event_hub_webhook_url="http://n8n:5678/webhook/support-event-hub",
+        ),
+    )
+    monkeypatch.setattr("backend.app.integrations.n8n.httpx.Client", FailingClient)
+
+    delivered = emit_n8n_event(db_session, "logging", {"event": "ticket_created"}, ticket_id=12)
+    db_session.commit()
+
+    assert delivered is False
+    events = db_session.query(EscalationEvent).all()
+    reasons = {event.reason for event in events}
+    assert "logging" in reasons
+    assert "logging_event_hub" in reasons
+    hub_event = next(event for event in events if event.reason == "logging_event_hub")
+    assert hub_event.channel == "n8n_event_hub"
+    assert hub_event.payload["event_type"] == "logging"
 
 
 def test_ticket_resolution_emits_feedback_event_and_detail(db_session):

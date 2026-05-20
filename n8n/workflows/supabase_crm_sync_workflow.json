@@ -1,0 +1,420 @@
+{
+  "name": "TechGear Supabase CRM Sync Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "supabase-crm-sync",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "supabase-sync-webhook",
+      "name": "Supabase CRM Sync Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { event_type: $json.event_type || $json.event || 'support_event', ...$json } }];"
+      },
+      "id": "normalize-supabase-event",
+      "name": "Normalize Supabase Event",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.event_type}}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": "ticket_created"
+            },
+            {
+              "operation": "equal",
+              "value2": "ai_metrics"
+            },
+            {
+              "operation": "equal",
+              "value2": "daily_report"
+            },
+            {
+              "operation": "equal",
+              "value2": "feedback"
+            },
+            {
+              "operation": "equal",
+              "value2": "support_event"
+            }
+          ]
+        }
+      },
+      "id": "supabase-event-router",
+      "name": "Supabase Event Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:$json.event_type,ticket_id:$json.ticket_id,intent:$json.intent,priority:$json.priority,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "insert-support-events",
+      "name": "Insert support_events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_tickets\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,status:$json.status,priority:$json.priority,intent:$json.intent,subject:$json.subject,message_text:$json.message_text,escalated:$json.escalated,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "upsert-support-tickets",
+      "name": "Upsert support_tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/ai_interactions\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({support_message_id:$json.support_message_id,detected_intent:$json.intent,intent_confidence:$json.confidence,retrieval_confidence:$json.retrieval_confidence,auto_resolved:$json.auto_resolved,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "insert-ai-interactions",
+      "name": "Insert ai_interactions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        820,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/daily_metrics\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({report_date:new Date().toISOString().slice(0,10),period:$json.period || \"daily\",total_messages:$json.total_messages,auto_resolved_messages:$json.auto_resolved_messages,created_tickets:$json.created_tickets,open_tickets:$json.open_tickets,complaints:$json.complaints,sla_breaches:$json.sla_breaches,ai_auto_resolution_rate:$json.ai_auto_resolution_rate,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "insert-daily-metrics",
+      "name": "Insert daily_metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        820,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/feedback_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,rating:$json.rating,comment:$json.comment,event_type:$json.event_type,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "insert-feedback-events",
+      "name": "Insert feedback_events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        820,
+        240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "supabase-sync-fallback-log",
+      "name": "Supabase Sync Fallback Log",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Supabase CRM Sync Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Supabase Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Supabase Event": {
+      "main": [
+        [
+          {
+            "node": "Supabase Event Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Event Router": {
+      "main": [
+        [
+          {
+            "node": "Upsert support_tickets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert ai_interactions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert daily_metrics",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert feedback_events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert support_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert support_tickets": {
+      "main": [
+        [
+          {
+            "node": "Supabase Sync Fallback Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert ai_interactions": {
+      "main": [
+        [
+          {
+            "node": "Supabase Sync Fallback Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert daily_metrics": {
+      "main": [
+        [
+          {
+            "node": "Supabase Sync Fallback Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert feedback_events": {
+      "main": [
+        [
+          {
+            "node": "Supabase Sync Fallback Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert support_events": {
+      "main": [
+        [
+          {
+            "node": "Supabase Sync Fallback Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-supabase-sync",
+  "active": false
+}

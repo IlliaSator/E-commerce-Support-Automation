@@ -1,0 +1,144 @@
+{
+  "name": "TechGear Workflow Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "workflow-error-trigger",
+      "name": "Workflow Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `n8n workflow error\\nWorkflow: ${$json.workflow?.name || 'unknown'}\\nNode: ${$json.execution?.lastNodeExecuted || 'n/a'}\\nError: ${$json.error?.message || JSON.stringify($json.error || {})}` } }];"
+      },
+      "id": "format-error-message",
+      "name": "Format Error Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-error-manager-alert",
+      "name": "Send Error Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -80
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "SupportEvents!A:J",
+        "options": {}
+      },
+      "id": "append-error-support-event",
+      "name": "Append Error Support Event",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        520,
+        80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "mock-dead-letter-log",
+      "name": "Mock Dead Letter Log",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        780,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Workflow Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Message": {
+      "main": [
+        [
+          {
+            "node": "Send Error Manager Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append Error Support Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Error Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Mock Dead Letter Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Error Support Event": {
+      "main": [
+        [
+          {
+            "node": "Mock Dead Letter Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-error-handler",
+  "active": false
+}

@@ -12,9 +12,11 @@ flowchart TD
     AI --> LLM["Optional OpenAI Drafting"]
     Backend --> N8N["n8n Webhooks"]
     N8N --> Alerts["Manager Alerts and Reports"]
+    N8N --> Sheets["Google Sheets Logs"]
+    N8N --> Supabase["Optional Supabase CRM Mirror"]
     Backend --> Dashboard["Streamlit Dashboard"]
 ```
 
-The backend owns all business decisions. The bot and dashboard are interface layers. n8n is used for operational workflows: alerts, scheduled reports, SLA checks, feedback requests, and CRM-style logging.
+The backend owns all business decisions. The bot and dashboard are interface layers. n8n is used for operational workflows: alerts, scheduled reports, SLA checks, feedback requests, Google Sheets logging, optional Supabase CRM mirroring, and error handling.
 
 Data is stored in PostgreSQL in Docker. Local development can use SQLite through `DATABASE_URL` when running scripts/tests outside Docker.

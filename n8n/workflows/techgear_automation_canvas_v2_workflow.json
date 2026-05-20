@@ -1,0 +1,2457 @@
+{
+  "name": "TechGear Automation Canvas v2 - Full MVP Ops",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "01 Intake and Event Hub: backend events, manager decisions, logging webhooks",
+        "height": 210,
+        "width": 2600,
+        "color": 3
+      },
+      "id": "lane-intake",
+      "name": "01 Intake and Event Hub: backend events, manager decisions, logging webhooks",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -1320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "02 AI Decision Policy: auto-resolved, low-confidence review, guardrail blocked",
+        "height": 210,
+        "width": 2600,
+        "color": 5
+      },
+      "id": "lane-ai",
+      "name": "02 AI Decision Policy: auto-resolved, low-confidence review, guardrail blocked",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -980
+      ]
+    },
+    {
+      "parameters": {
+        "content": "03 Ticket Ops and Escalation: urgent complaints, human review, ticket creation",
+        "height": 210,
+        "width": 2600,
+        "color": 4
+      },
+      "id": "lane-ticket",
+      "name": "03 Ticket Ops and Escalation: urgent complaints, human review, ticket creation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "04 Feedback Loop: resolved ticket follow-up and negative feedback escalation",
+        "height": 210,
+        "width": 2600,
+        "color": 6
+      },
+      "id": "lane-feedback",
+      "name": "04 Feedback Loop: resolved ticket follow-up and negative feedback escalation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "05 SLA Monitoring: breach scan, alerting, and SLA evidence logging",
+        "height": 210,
+        "width": 2600,
+        "color": 2
+      },
+      "id": "lane-sla",
+      "name": "05 SLA Monitoring: breach scan, alerting, and SLA evidence logging",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "06 Reporting: daily and weekly business/AI summaries",
+        "height": 210,
+        "width": 2600,
+        "color": 7
+      },
+      "id": "lane-reports",
+      "name": "06 Reporting: daily and weekly business/AI summaries",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "content": "07 Unresolved Follow-Up: stale open tickets need manager attention",
+        "height": 210,
+        "width": 2600,
+        "color": 4
+      },
+      "id": "lane-followup",
+      "name": "07 Unresolved Follow-Up: stale open tickets need manager attention",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "content": "08 External CRM Sinks: Google Sheets, Supabase mirror, audit/dead-letter log",
+        "height": 210,
+        "width": 2600,
+        "color": 3
+      },
+      "id": "lane-crm",
+      "name": "08 External CRM Sinks: Google Sheets, Supabase mirror, audit/dead-letter log",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "content": "09 Error Handling: n8n error trigger, manager alert, manual replay queue",
+        "height": 210,
+        "width": 2600,
+        "color": 5
+      },
+      "id": "lane-errors",
+      "name": "09 Error Handling: n8n error trigger, manager alert, manual replay queue",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1400
+      ]
+    },
+    {
+      "parameters": {
+        "path": "support-event-hub",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "support-event-hub-webhook",
+      "name": "Support Event Hub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -1180
+      ]
+    },
+    {
+      "parameters": {
+        "path": "support-logging",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "support-logging-webhook-v2",
+      "name": "Support Logging Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "path": "manager-review-decision",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "manager-review-decision-webhook",
+      "name": "Manager Review Decision Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -900
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { event_type: $json.event_type || $json.event || $json.intent || 'support_event', received_at: new Date().toISOString(), source: $json.source || 'backend', ...$json } }];"
+      },
+      "id": "normalize-event-v2",
+      "name": "Normalize Event Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        280,
+        -1060
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event_type}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "event-quality-gate",
+      "name": "Event Quality Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -1060
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.event_type}}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "equal",
+              "value2": "escalation"
+            },
+            {
+              "operation": "equal",
+              "value2": "low_confidence"
+            },
+            {
+              "operation": "equal",
+              "value2": "guardrail_blocked"
+            },
+            {
+              "operation": "equal",
+              "value2": "auto_resolved"
+            },
+            {
+              "operation": "equal",
+              "value2": "ticket_created"
+            },
+            {
+              "operation": "equal",
+              "value2": "feedback"
+            },
+            {
+              "operation": "equal",
+              "value2": "negative_feedback"
+            },
+            {
+              "operation": "equal",
+              "value2": "ai_metrics"
+            },
+            {
+              "operation": "equal",
+              "value2": "logging"
+            },
+            {
+              "operation": "equal",
+              "value2": "manager_decision"
+            }
+          ]
+        }
+      },
+      "id": "central-event-router",
+      "name": "Central Event Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        840,
+        -1060
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "dead-letter-missing-event-type",
+      "name": "Dead Letter: Missing Event Type",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -920
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{\"http://backend:8000/tickets/\" + $json.ticket_id + \"/detail\"}}",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-ticket-detail",
+      "name": "Fetch Ticket Detail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -760
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `URGENT TechGear escalation\\nTicket: #${$json.id || $json.ticket_id}\\nPriority: ${$json.priority}\\nIntent: ${$json.intent}\\nMessage: ${$json.message_text || ''}` } }];"
+      },
+      "id": "build-escalation-packet",
+      "name": "Build Escalation Packet",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        -760
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-urgent-manager-alert",
+      "name": "Send Urgent Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        -760
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_tickets\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.id||$json.ticket_id,status:$json.status,priority:$json.priority,intent:$json.intent,subject:$json.subject,message_text:$json.message_text,escalated:true,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-escalation-ticket-supabase",
+      "name": "Mirror Ticket to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        -760
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `Human review required\\nTicket: #${$json.ticket_id || 'new'}\\nIntent: ${$json.intent}\\nConfidence: ${$json.confidence || $json.intent_confidence || 'n/a'}\\nSuggested: ${$json.suggested_reply || $json.generated_reply || 'n/a'}` } }];"
+      },
+      "id": "build-review-packet",
+      "name": "Build Human Review Packet",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-review-request",
+      "name": "Send Manager Review Request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        -520
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_tickets\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,status:\"open\",priority:$json.priority,intent:$json.intent,message_text:$json.message_text,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-review-ticket-supabase",
+      "name": "Mirror Review Ticket to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `AI guardrail blocked an unsafe reply\\nIntent: ${$json.intent}\\nTicket: #${$json.ticket_id || 'created'}\\nReason: ${JSON.stringify($json.guardrail_result || {})}` } }];"
+      },
+      "id": "build-guardrail-note",
+      "name": "Build Guardrail Block Note",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-guardrail-alert",
+      "name": "Send Guardrail Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        -280
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:\"guardrail_blocked\",ticket_id:$json.ticket_id,intent:$json.intent,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-guardrail-event-supabase",
+      "name": "Mirror Guardrail Event to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        -280
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, event_type: 'auto_resolved', resolution: $json.reply_text || $json.final_reply_sent } }];"
+      },
+      "id": "build-auto-resolution-row",
+      "name": "Build Auto-Resolution Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "AIMetrics!A:H",
+        "options": {}
+      },
+      "id": "append-auto-ai-metrics",
+      "name": "Append Auto AI Metrics Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        -40
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/ai_interactions\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({support_message_id:$json.support_message_id,detected_intent:$json.intent,intent_confidence:$json.confidence,auto_resolved:true,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-auto-resolution-supabase",
+      "name": "Mirror Auto Resolution to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, row_type: 'ticket_created' } }];"
+      },
+      "id": "build-ticket-created-row",
+      "name": "Build Ticket Created Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "Tickets!A:J",
+        "options": {}
+      },
+      "id": "append-created-ticket-row",
+      "name": "Append Created Ticket Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_tickets\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,status:\"open\",priority:$json.priority,intent:$json.intent,message_text:$json.message_text,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-created-ticket-supabase",
+      "name": "Mirror Created Ticket to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `TechGear Store: ticket #${$json.ticket_id} was resolved. Please rate support from 1 to 5.` } }];"
+      },
+      "id": "prepare-ticket-feedback-request",
+      "name": "Prepare Ticket Feedback Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_chat_id || $env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-ticket-feedback-request",
+      "name": "Send Ticket Feedback Request",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        440
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/feedback_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,rating:$json.rating,comment:$json.comment,event_type:\"feedback_request\",payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-feedback-request-supabase",
+      "name": "Mirror Feedback Request to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.rating}}",
+              "operation": "smallerEqual",
+              "value2": 2
+            }
+          ]
+        }
+      },
+      "id": "check-negative-rating",
+      "name": "Check Negative Rating",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `Negative feedback received\\nTicket: #${$json.ticket_id}\\nRating: ${$json.rating}\\nComment: ${$json.comment || ''}` } }];"
+      },
+      "id": "build-negative-feedback-alert",
+      "name": "Build Negative Feedback Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-negative-feedback-manager-alert",
+      "name": "Send Negative Feedback Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        680
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/feedback_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ticket_id:$json.ticket_id,rating:$json.rating,comment:$json.comment,event_type:\"negative_feedback\",payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-negative-feedback-supabase",
+      "name": "Mirror Negative Feedback to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, metric_time: new Date().toISOString() } }];"
+      },
+      "id": "build-ai-metrics-row",
+      "name": "Build AI Metrics Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "AIMetrics!A:H",
+        "options": {}
+      },
+      "id": "append-ai-metrics-row-v2",
+      "name": "Append AI Metrics Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        920
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/ai_interactions\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({support_message_id:$json.support_message_id,detected_intent:$json.intent,intent_confidence:$json.confidence,retrieval_confidence:$json.retrieval_confidence,auto_resolved:$json.auto_resolved,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-ai-metrics-supabase",
+      "name": "Mirror AI Metrics to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        920
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, logged_at: new Date().toISOString() } }];"
+      },
+      "id": "build-support-event-row",
+      "name": "Build Support Event Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "SupportEvents!A:J",
+        "options": {}
+      },
+      "id": "append-support-event-row-v2",
+      "name": "Append SupportEvents Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        1160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:$json.event_type || $json.event,ticket_id:$json.ticket_id,intent:$json.intent,priority:$json.priority,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-support-event-supabase",
+      "name": "Mirror Support Event to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, decision: $json.decision || 'reviewed', decided_at: new Date().toISOString() } }];"
+      },
+      "id": "parse-manager-decision",
+      "name": "Parse Manager Decision",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{\"http://backend:8000/tickets/\" + $json.ticket_id}}",
+        "method": "PATCH",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({status:$json.status || \"in_progress\", assigned_to:$json.assigned_to || \"manager\"})}}",
+        "responseFormat": "json"
+      },
+      "id": "update-ticket-from-decision",
+      "name": "Update Ticket from Decision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        1400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:\"manager_decision\",ticket_id:$json.ticket_id,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-manager-decision-supabase",
+      "name": "Mirror Manager Decision to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        1400
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "cron-v2-1",
+      "name": "SLA Monitor Every 15 Minutes",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/sla-breaches",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-sla-breaches",
+      "name": "Fetch SLA Breaches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        280,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.count || ($json.breaches ? $json.breaches.length : 0)}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "sla-breaches-exist",
+      "name": "SLA Breaches Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        540,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `SLA breach alert: ${$json.count || ($json.breaches ? $json.breaches.length : 0)} ticket(s) need action.` } }];"
+      },
+      "id": "format-sla-alert",
+      "name": "Format SLA Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-sla-alert",
+      "name": "Send SLA Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        1640
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:\"sla_breach\",payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-sla-breach-to-supabase",
+      "name": "Mirror SLA Breach to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 18,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "cron-v2-2",
+      "name": "Daily Report Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/daily",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-daily-analytics",
+      "name": "Fetch Daily Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        280,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const d=$json; return [{json:{...d, period:'daily', text:`Daily TechGear report\\nMessages: ${d.total_messages}\\nAuto-resolved: ${d.auto_resolved_messages}\\nTickets: ${d.created_tickets} (${d.open_tickets} open)\\nComplaints: ${d.complaints}\\nSLA breaches: ${d.sla_breaches}`}}];"
+      },
+      "id": "format-daily-report",
+      "name": "Format Daily Report",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        540,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-daily-manager-report",
+      "name": "Send Daily Manager Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        800,
+        1880
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/daily_metrics\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({report_date:new Date().toISOString().slice(0,10),period:\"daily\",total_messages:$json.total_messages,auto_resolved_messages:$json.auto_resolved_messages,created_tickets:$json.created_tickets,open_tickets:$json.open_tickets,complaints:$json.complaints,sla_breaches:$json.sla_breaches,ai_auto_resolution_rate:$json.ai_auto_resolution_rate,payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-daily-metrics-to-supabase",
+      "name": "Mirror Daily Metrics to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        1880
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "weekday": "monday",
+              "hour": 9,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "cron-v2-3",
+      "name": "Weekly Report Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        2120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/analytics/weekly",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-weekly-analytics",
+      "name": "Fetch Weekly Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        280,
+        2120
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const d=$json; return [{json:{...d, period:'weekly', text:`Weekly TechGear summary\\nMessages: ${d.total_messages}\\nTickets: ${d.created_tickets}\\nOpen: ${d.open_tickets}\\nComplaints: ${d.complaints}\\nSLA breaches: ${d.sla_breaches}`}}];"
+      },
+      "id": "format-weekly-report",
+      "name": "Format Weekly Report",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        540,
+        2120
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-weekly-manager-report",
+      "name": "Send Weekly Manager Report",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        800,
+        2120
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/daily_metrics\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({report_date:new Date().toISOString().slice(0,10),period:\"weekly\",payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-weekly-metrics-to-supabase",
+      "name": "Mirror Weekly Metrics to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        2120
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 60,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "cron-v2-4",
+      "name": "Unresolved Followup Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        2360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/tickets/open?older_than_minutes=60",
+        "method": "GET",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Admin-API-Key",
+              "value": "={{$env.ADMIN_API_KEY}}"
+            }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "fetch-old-open-tickets",
+      "name": "Fetch Old Open Tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        280,
+        2360
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const tickets = Array.isArray($json) ? $json : ($json.data || []); return [{ json: { tickets, text: `Follow-up required: ${tickets.length} unresolved ticket(s) older than threshold.` } }];"
+      },
+      "id": "format-followup-alert",
+      "name": "Format Followup Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        540,
+        2360
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-followup-manager-alert",
+      "name": "Send Followup Manager Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        800,
+        2360
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL + \"/rest/v1/support_events\"}}",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{\"Bearer \" + $env.SUPABASE_SERVICE_ROLE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({event_type:\"unresolved_followup\",payload:$json})}}",
+        "responseFormat": "json",
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "mirror-followup-event-to-supabase",
+      "name": "Mirror Followup Event to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        2360
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "workflow-error-trigger-v2",
+      "name": "Workflow Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        2700
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { ...$json, text: `n8n workflow error in ${$json.workflow?.name || 'unknown'}\\nNode: ${$json.execution?.lastNodeExecuted || 'n/a'}\\nError: ${$json.error?.message || JSON.stringify($json.error || {})}` } }];"
+      },
+      "id": "format-workflow-error-v2",
+      "name": "Format Workflow Error",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        280,
+        2700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.MANAGER_CHAT_IDS}}",
+        "text": "={{$json.text}}",
+        "additionalFields": {}
+      },
+      "id": "send-workflow-error-alert-v2",
+      "name": "Send Workflow Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        560,
+        2700
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "PLACEHOLDER_TELEGRAM_CREDENTIAL_ID",
+          "name": "TechGear Telegram Bot Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "dead-letter-error-log-v2",
+      "name": "Dead Letter Error Log",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        2700
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "unified-audit-log-v2",
+      "name": "Unified Audit Log / CRM Fanout",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        640
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "dead-letter-audit-log-v2",
+      "name": "Dead Letter / Manual Replay Queue",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        1420
+      ]
+    }
+  ],
+  "connections": {
+    "Support Event Hub Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support Logging Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager Review Decision Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Event Payload": {
+      "main": [
+        [
+          {
+            "node": "Event Quality Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Quality Gate": {
+      "main": [
+        [
+          {
+            "node": "Central Event Router",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dead Letter: Missing Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Central Event Router": {
+      "main": [
+        [
+          {
+            "node": "Fetch Ticket Detail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Human Review Packet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Guardrail Block Note",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Auto-Resolution Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Ticket Created Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Ticket Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Negative Rating",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build AI Metrics Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Support Event Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Manager Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Ticket Detail": {
+      "main": [
+        [
+          {
+            "node": "Build Escalation Packet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Escalation Packet": {
+      "main": [
+        [
+          {
+            "node": "Send Urgent Manager Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Urgent Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Mirror Ticket to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Ticket to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Human Review Packet": {
+      "main": [
+        [
+          {
+            "node": "Send Manager Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Manager Review Request": {
+      "main": [
+        [
+          {
+            "node": "Mirror Review Ticket to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Review Ticket to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Guardrail Block Note": {
+      "main": [
+        [
+          {
+            "node": "Send Guardrail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Guardrail Alert": {
+      "main": [
+        [
+          {
+            "node": "Mirror Guardrail Event to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Guardrail Event to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Auto-Resolution Row": {
+      "main": [
+        [
+          {
+            "node": "Append Auto AI Metrics Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Auto AI Metrics Row": {
+      "main": [
+        [
+          {
+            "node": "Mirror Auto Resolution to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Auto Resolution to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Ticket Created Row": {
+      "main": [
+        [
+          {
+            "node": "Append Created Ticket Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Created Ticket Row": {
+      "main": [
+        [
+          {
+            "node": "Mirror Created Ticket to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Created Ticket to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Ticket Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Send Ticket Feedback Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Ticket Feedback Request": {
+      "main": [
+        [
+          {
+            "node": "Mirror Feedback Request to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Feedback Request to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Negative Rating": {
+      "main": [
+        [
+          {
+            "node": "Build Negative Feedback Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Negative Feedback Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mirror Negative Feedback to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Negative Feedback Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Negative Feedback Manager Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Negative Feedback Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Mirror Negative Feedback to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Negative Feedback to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Metrics Row": {
+      "main": [
+        []
+      ]
+    },
+    "Mirror AI Metrics to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Support Event Row": {
+      "main": [
+        []
+      ]
+    },
+    "Mirror Support Event to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Manager Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Ticket from Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ticket from Decision": {
+      "main": [
+        [
+          {
+            "node": "Mirror Manager Decision to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Manager Decision to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA Monitor Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Fetch SLA Breaches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SLA Breaches": {
+      "main": [
+        [
+          {
+            "node": "SLA Breaches Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA Breaches Exist": {
+      "main": [
+        [
+          {
+            "node": "Format SLA Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format SLA Alert": {
+      "main": [
+        [
+          {
+            "node": "Send SLA Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SLA Alert": {
+      "main": [
+        [
+          {
+            "node": "Mirror SLA Breach to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror SLA Breach to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Report Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Daily Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Daily Analytics": {
+      "main": [
+        [
+          {
+            "node": "Format Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Manager Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Daily Manager Report": {
+      "main": [
+        [
+          {
+            "node": "Mirror Daily Metrics to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Daily Metrics to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Report Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Analytics": {
+      "main": [
+        [
+          {
+            "node": "Format Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Manager Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Weekly Manager Report": {
+      "main": [
+        [
+          {
+            "node": "Mirror Weekly Metrics to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Weekly Metrics to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unresolved Followup Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Old Open Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Old Open Tickets": {
+      "main": [
+        [
+          {
+            "node": "Format Followup Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Followup Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Followup Manager Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Followup Manager Alert": {
+      "main": [
+        [
+          {
+            "node": "Mirror Followup Event to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mirror Followup Event to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Unified Audit Log / CRM Fanout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Workflow Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Send Workflow Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Workflow Error Alert": {
+      "main": [
+        [
+          {
+            "node": "Dead Letter Error Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dead Letter: Missing Event Type": {
+      "main": [
+        [
+          {
+            "node": "Dead Letter / Manual Replay Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dead Letter Error Log": {
+      "main": [
+        [
+          {
+            "node": "Dead Letter / Manual Replay Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 8,
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "versionId": "placeholder-local-v2-workflow",
+  "active": false
+}

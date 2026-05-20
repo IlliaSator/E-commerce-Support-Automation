@@ -17,6 +17,7 @@ Value:
 - SLA control
 - manager reports
 - AI suggestion review data
+- optional Google Sheets and Supabase CRM mirrors for operations teams
 
 Automated:
 
@@ -27,6 +28,8 @@ Automated:
 - escalation notifications
 - SLA breach reporting
 - daily and weekly summaries
+- support event exports to Google Sheets
+- ticket, AI, metric, and feedback mirrors to Supabase
 
 Human review remains required for refunds, complaints, legal threats, low-confidence answers, and customer requests for a manager.
 

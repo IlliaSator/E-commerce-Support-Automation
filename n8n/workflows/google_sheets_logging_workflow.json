@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "functionCode": "return [{json:{timestamp:new Date().toISOString(), event:$json.event, ticket_id:$json.ticket_id, intent:$json.intent, priority:$json.priority}}];"
+        "functionCode": "return [{json:{timestamp:new Date().toISOString(), event:$json.event || $json.event_type, ticket_id:$json.ticket_id, intent:$json.intent, priority:$json.priority, payload: JSON.stringify($json)}}];"
       },
       "id": "format-support-event-row",
       "name": "Format Support Event Row",
@@ -32,17 +32,127 @@
     {
       "parameters": {
         "operation": "append",
-        "sheetId": "PLACEHOLDER_SHEET_ID",
-        "range": "SupportEvents!A:E",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "SupportEvents!A:J",
         "options": {}
       },
-      "id": "append-google-sheet-row",
-      "name": "Append Google Sheet Row",
+      "id": "append-support-events",
+      "name": "Append SupportEvents",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 1,
       "position": [
-        520,
-        0
+        560,
+        -300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "Tickets!A:J",
+        "options": {}
+      },
+      "id": "append-tickets",
+      "name": "Append Tickets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -180
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "AIMetrics!A:H",
+        "options": {}
+      },
+      "id": "append-ai-metrics",
+      "name": "Append AIMetrics",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -60
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "SlaBreaches!A:H",
+        "options": {}
+      },
+      "id": "append-sla-breaches",
+      "name": "Append SlaBreaches",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        560,
+        60
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "Feedback!A:H",
+        "options": {}
+      },
+      "id": "append-feedback",
+      "name": "Append Feedback",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        560,
+        180
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PLACEHOLDER_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "TechGear Google Sheets Placeholder"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "={{$env.GOOGLE_SHEETS_SPREADSHEET_ID || \"PLACEHOLDER_SHEET_ID\"}}",
+        "range": "DailyReports!A:J",
+        "options": {}
+      },
+      "id": "append-daily-reports",
+      "name": "Append DailyReports",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        560,
+        300
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -58,8 +168,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        520,
-        160
+        860,
+        0
       ]
     }
   ],
@@ -79,7 +189,32 @@
       "main": [
         [
           {
-            "node": "Append Google Sheet Row",
+            "node": "Append SupportEvents",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append Tickets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append AIMetrics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append SlaBreaches",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append Feedback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append DailyReports",
             "type": "main",
             "index": 0
           },
@@ -100,6 +235,6 @@
   "tags": [],
   "triggerCount": 1,
   "updatedAt": "2026-05-20T00:00:00.000Z",
-  "versionId": "placeholder-local-workflow",
+  "versionId": "placeholder-local-google-sheets-v2",
   "active": false
 }
