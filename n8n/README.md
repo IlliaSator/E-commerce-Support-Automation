@@ -2,7 +2,7 @@
 
 Import the workflow JSON files from `n8n/workflows/` into local n8n or n8n Cloud.
 
-`techgear_automation_canvas_v2_workflow.json` is the main connected n8n canvas for demo and portfolio screenshots. It shows backend webhooks, AI decision routing, a real n8n AI Agent cluster with chat model, memory, HTTP tools, and Code Tool, ticket ops, SLA checks, reports, feedback, Telegram alerts, Google Sheets logging, Supabase CRM mirroring, error handling, and mock audit logging in one editor view. The separate workflow files remain available for focused business automations.
+`techgear_automation_canvas_v2_workflow.json` is the main connected n8n canvas for demo and portfolio screenshots. It shows backend webhooks, AI decision routing, a real n8n AI Agent cluster with chat model, Postgres Chat Memory, backend HTTP tools, Code Tool, Think Tool, Calculator Tool, controlled ticket tools, ticket ops, SLA checks, reports, feedback, Telegram alerts, Google Sheets logging, Supabase CRM mirroring, error handling, and mock audit logging in one editor view. The separate workflow files remain available for focused business automations.
 
 The workflows intentionally use placeholder credential names:
 

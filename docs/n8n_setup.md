@@ -2,7 +2,7 @@
 
 Local n8n runs at http://localhost:5678.
 
-Import each JSON file from `n8n/workflows/` manually in the n8n UI. The `techgear_automation_canvas_v2_workflow.json` file is the main connected n8n canvas for portfolio review and end-to-end walkthrough. It shows intake, AI decision routing, an optional AI Agent layer with chat model, memory, and backend tools, ticket ops, SLA, manager review, Google Sheets, Supabase, feedback, and error handling in one editor view. The smaller workflow files keep individual production-style automations easy to inspect.
+Import each JSON file from `n8n/workflows/` manually in the n8n UI. The `techgear_automation_canvas_v2_workflow.json` file is the main connected n8n canvas for portfolio review and end-to-end walkthrough. It shows intake, AI decision routing, an optional AI Agent layer with chat model, Postgres Chat Memory, backend tools, code/risk checks, Think/Calculator tools, ticket ops, SLA, manager review, Google Sheets, Supabase, feedback, and error handling in one editor view. The smaller workflow files keep individual production-style automations easy to inspect.
 
 Credential placeholders:
 
@@ -30,6 +30,6 @@ Optional environment values:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Google Sheets, Supabase, PostgreSQL n8n nodes, and the n8n Chat Model are optional sinks/drafting helpers. If they are not configured, the local backend and mock/demo flows still work. PostgreSQL nodes should use the same local database values from `.env`, but exported workflows must keep only placeholder credential names.
+Google Sheets, Supabase, PostgreSQL n8n nodes, Postgres Chat Memory, and the n8n Chat Model are optional sinks/drafting helpers. The AI Agent also has backend HTTP tools, a Code Tool, a Think Tool, and a Calculator Tool for manager-review orchestration. If external credentials are not configured, the local backend and mock/demo flows still work. PostgreSQL nodes should use the same local database values from `.env`, but exported workflows must keep only placeholder credential names.
 
 n8n Cloud can use the same workflows after changing backend URLs to a public HTTPS endpoint.

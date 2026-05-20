@@ -6,7 +6,7 @@ The system is designed as controlled support automation, not an OpenAI wrapper.
 
 The AI layer includes deterministic intent rules, optional sklearn classifier, local TF-IDF retrieval, provider abstraction, prompt templates, guardrails, observability, evaluation, and human feedback storage.
 
-The n8n MVP canvas also includes an optional AI Agent orchestration layer. That agent has a chat model placeholder, simple conversation memory, HTTP tools for backend order/product/RAG/ticket/SLA lookups, and a Code Tool for risk checks. It is intentionally positioned as manager-note drafting and orchestration context. It does not replace backend decisions.
+The n8n MVP canvas also includes an optional AI Agent orchestration layer. That agent has a chat model placeholder, Postgres Chat Memory, HTTP tools for backend order/product/RAG/ticket/SLA/analytics lookups, controlled ticket tools for manager-approved flows, a Code Tool for risk checks, a Think Tool for policy reasoning, and a Calculator Tool for SLA/report arithmetic. It is intentionally positioned as manager-note drafting and orchestration context. It does not replace backend decisions.
 
 ## Why LLM Is Optional
 
