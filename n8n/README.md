@@ -10,6 +10,7 @@ The workflows intentionally use placeholder credential names:
 - `TechGear Google Sheets Placeholder`
 - `TechGear Supabase Placeholder`
 - `TechGear OpenAI Placeholder`
+- `TechGear PostgreSQL Placeholder`
 
 Replace them manually in the n8n UI after import. No real tokens or service account files are stored in this repository.
 

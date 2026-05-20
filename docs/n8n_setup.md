@@ -10,6 +10,7 @@ Credential placeholders:
 - `TechGear Google Sheets Placeholder`
 - `TechGear Supabase Placeholder`
 - `TechGear OpenAI Placeholder`
+- `TechGear PostgreSQL Placeholder`
 
 Replace placeholders with real credentials in n8n UI. The AI Agent/Chat Model section is optional and should stay disabled or unexecuted until an LLM credential is configured. Do not commit exported workflows containing real credentials.
 
@@ -29,6 +30,6 @@ Optional environment values:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Google Sheets, Supabase, and the n8n Chat Model are optional sinks/drafting helpers. If they are not configured, the local backend and mock/demo flows still work.
+Google Sheets, Supabase, PostgreSQL n8n nodes, and the n8n Chat Model are optional sinks/drafting helpers. If they are not configured, the local backend and mock/demo flows still work. PostgreSQL nodes should use the same local database values from `.env`, but exported workflows must keep only placeholder credential names.
 
 n8n Cloud can use the same workflows after changing backend URLs to a public HTTPS endpoint.
