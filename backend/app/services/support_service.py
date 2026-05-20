@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import time
+from datetime import UTC, datetime
 from typing import Any
-
-from sqlalchemy.orm import Session
 
 from backend.app.ai.classifier import ClassificationResult, classify_message, extract_order_id
 from backend.app.ai.guardrails import run_guardrails
@@ -17,13 +15,32 @@ from backend.app.ai.policy import (
 )
 from backend.app.ai.providers.factory import get_provider
 from backend.app.ai.retrieval.service import retrieve_knowledge
-from backend.app.ai.urgency import detect_language, detect_negative_tone, detect_urgency, priority_for_intent
+from backend.app.ai.urgency import (
+    detect_language,
+    detect_negative_tone,
+    detect_urgency,
+    priority_for_intent,
+)
 from backend.app.integrations.n8n import emit_n8n_event
-from backend.app.models import AIInteraction, AISuggestion, Order, Product, SupportMessage, Ticket, TicketEvent
-from backend.app.schemas.api import GuardrailResult, RetrievedSource, SupportMessageIn, SupportMessageOut
+from backend.app.models import (
+    AIInteraction,
+    AISuggestion,
+    Order,
+    Product,
+    SupportMessage,
+    Ticket,
+    TicketEvent,
+)
+from backend.app.schemas.api import (
+    GuardrailResult,
+    RetrievedSource,
+    SupportMessageIn,
+    SupportMessageOut,
+)
 from backend.app.services.customer_service import get_or_create_customer
 from backend.app.services.product_service import search_products
 from backend.app.services.sla_service import calculate_sla_due
+from sqlalchemy.orm import Session
 
 
 def _ticket_subject(intent: str, message: str) -> str:
@@ -377,7 +394,7 @@ def handle_message(db: Session, payload: SupportMessageIn) -> SupportMessageOut:
                 "priority": ticket.priority,
                 "intent": ticket.intent,
                 "message_text": ticket.message_text,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
             },
             ticket_id=ticket.id,
         )

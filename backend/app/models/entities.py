@@ -1,14 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from backend.app.db.session import Base
+from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 def utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Customer(Base):
@@ -43,7 +42,7 @@ class Order(Base):
     delivery_method: Mapped[str] = mapped_column(String(128))
     carrier: Mapped[str | None] = mapped_column(String(128))
     tracking_number: Mapped[str | None] = mapped_column(String(128))
-    eta_date: Mapped[datetime | None] = mapped_column(Date)
+    eta_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 

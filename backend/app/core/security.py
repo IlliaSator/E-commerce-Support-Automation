@@ -1,6 +1,5 @@
-from fastapi import Header, HTTPException, status
-
 from backend.app.core.config import get_settings
+from fastapi import Header, HTTPException, status
 
 
 def require_admin_api_key(x_admin_api_key: str | None = Header(default=None)) -> None:

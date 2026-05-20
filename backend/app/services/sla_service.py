@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from backend.app.core.config import get_settings
@@ -29,7 +29,7 @@ def _next_business_start(local_dt: datetime) -> datetime:
 def calculate_sla_due(priority: str, created_at: datetime | None = None) -> datetime:
     settings = get_settings()
     policy = SLA_POLICIES.get(priority, SLA_POLICIES["normal"])
-    created = created_at or datetime.now(timezone.utc)
+    created = created_at or datetime.now(UTC)
     if not policy["business"]:
         return created + timedelta(minutes=policy["minutes"])
 
@@ -44,8 +44,8 @@ def calculate_sla_due(priority: str, created_at: datetime | None = None) -> date
         end_of_day = datetime.combine(cursor.date(), time(18, 0), tz)
         available = int((end_of_day - cursor).total_seconds() // 60)
         if remaining <= available:
-            return (cursor + timedelta(minutes=remaining)).astimezone(timezone.utc)
+            return (cursor + timedelta(minutes=remaining)).astimezone(UTC)
         remaining -= available
         cursor = _next_business_start(end_of_day + timedelta(minutes=1))
 
-    return cursor.astimezone(timezone.utc)
+    return cursor.astimezone(UTC)

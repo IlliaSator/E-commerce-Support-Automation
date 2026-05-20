@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 import logging
 
+import httpx
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
-import httpx
 
 from bot.app.admin import is_admin
 from bot.app.client import BackendClient

@@ -1,12 +1,11 @@
-from datetime import datetime, timezone
-
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from datetime import UTC, datetime
 
 from backend.app.models import AISuggestion, Feedback, Ticket, TicketEvent
 from backend.app.schemas.api import TicketCreate, TicketResolve, TicketUpdate
 from backend.app.services.customer_service import get_or_create_customer
 from backend.app.services.sla_service import calculate_sla_due
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 
 def get_ticket_or_404(db: Session, ticket_id: int) -> Ticket:
@@ -30,7 +29,7 @@ def list_open_tickets(db: Session) -> list[Ticket]:
 
 
 def list_sla_breaches(db: Session) -> list[Ticket]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return (
         db.query(Ticket)
         .filter(Ticket.status.in_(["open", "in_progress", "waiting_customer"]))
@@ -88,7 +87,7 @@ def update_ticket(db: Session, ticket_id: int, payload: TicketUpdate) -> Ticket:
 def resolve_ticket(db: Session, ticket_id: int, payload: TicketResolve) -> Ticket:
     ticket = get_ticket_or_404(db, ticket_id)
     ticket.status = "resolved"
-    ticket.resolved_at = datetime.now(timezone.utc)
+    ticket.resolved_at = datetime.now(UTC)
     if payload.final_reply:
         ticket.suggested_reply = payload.final_reply
     suggestion = ticket.suggestions[-1] if ticket.suggestions else None

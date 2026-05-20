@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
-import re
 
 import joblib
-
 from backend.app.ai.urgency import normalize_text
 
 MODEL_PATH = Path("data/training/intent_classifier.joblib")
@@ -85,7 +84,7 @@ def _rule_classify(text: str) -> ClassificationResult | None:
         return ClassificationResult("complaint", 0.95)
     if _contains_any(
         normalized,
-        {"return", "refund", "money back", "вернуть", "возврат", "верните деньги", "refund"},
+        {"return", "refund", "money back", "вернуть", "возврат", "верните деньги"},
     ):
         return ClassificationResult("return_refund", 0.88)
     if extract_order_id(normalized) or _contains_any(

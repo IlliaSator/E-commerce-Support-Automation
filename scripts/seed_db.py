@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import json
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +37,7 @@ def seed_orders(db) -> None:
                     delivery_method=row["delivery_method"],
                     carrier=row["carrier"] or None,
                     tracking_number=row["tracking_number"] or None,
-                    eta_date=row["eta_date"] or None,
+                    eta_date=date.fromisoformat(row["eta_date"]) if row["eta_date"] else None,
                 )
             )
 

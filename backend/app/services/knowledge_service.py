@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Session
-
 from backend.app.schemas.api import KnowledgeAnswerOut, RetrievedSource
+from sqlalchemy.orm import Session
 
 
 def answer_question(db: Session, question: str, language: str | None = None) -> KnowledgeAnswerOut:

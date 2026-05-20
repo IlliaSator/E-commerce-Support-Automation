@@ -1,9 +1,6 @@
-from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlalchemy.orm import Session
-
 from backend.app.core.security import require_admin_api_key
 from backend.app.db.session import get_db, init_db
-from backend.app.models import Order, Product
+from backend.app.models import Order
 from backend.app.schemas.api import (
     AIEvaluateMessageIn,
     AIEvaluateMessageOut,
@@ -23,6 +20,8 @@ from backend.app.schemas.api import (
     TicketSummaryOut,
     TicketUpdate,
 )
+from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlalchemy.orm import Session
 
 app = FastAPI(
     title="E-commerce Support Automation",

@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
-
-from sqlalchemy import func
-from sqlalchemy.orm import Session
 
 from backend.app.models import AIInteraction, EscalationEvent, Feedback, SupportMessage, Ticket
 from backend.app.services.ticket_service import list_sla_breaches
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 
 def _rate(numerator: int, denominator: int) -> float:
@@ -47,7 +46,7 @@ def get_summary(db: Session) -> dict[str, Any]:
 
 def get_sla_breaches_payload(db: Session) -> dict[str, Any]:
     breaches = list_sla_breaches(db)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return {
         "count": len(breaches),
         "breaches": [
@@ -78,10 +77,10 @@ def get_ai_metrics(db: Session) -> dict[str, Any]:
     auto = db.query(AIInteraction).filter(AIInteraction.auto_resolved.is_(True)).count()
     review = db.query(AIInteraction).filter(AIInteraction.ticket_created.is_(True)).count()
     avg_latency = db.query(func.avg(AIInteraction.latency_ms)).scalar() or 0
-    unsafe = (
-        db.query(AIInteraction)
-        .filter(AIInteraction.guardrail_result["allowed"].as_boolean().is_(False))
-        .count()
+    unsafe = sum(
+        1
+        for interaction in db.query(AIInteraction.guardrail_result).all()
+        if isinstance(interaction[0], dict) and interaction[0].get("allowed") is False
     )
     suggestions = db.query(func.count(Feedback.id)).scalar() or 0
     escalations = db.query(EscalationEvent).count()
@@ -109,7 +108,7 @@ def get_ai_metrics(db: Session) -> dict[str, Any]:
 
 
 def _period_report(db: Session, days: int) -> dict[str, Any]:
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.now(UTC) - timedelta(days=days)
     summary = get_summary(db)
     summary["period_days"] = days
     summary["messages_in_period"] = db.query(SupportMessage).filter(SupportMessage.created_at >= since).count()

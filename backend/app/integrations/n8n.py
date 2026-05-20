@@ -4,10 +4,9 @@ import logging
 from typing import Any
 
 import httpx
-from sqlalchemy.orm import Session
-
 from backend.app.core.config import get_settings
 from backend.app.models import EscalationEvent
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 

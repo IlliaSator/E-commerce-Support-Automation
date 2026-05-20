@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from sqlalchemy.orm import Session
-
 from backend.app.ai.urgency import detect_language
 from backend.app.models import KnowledgeArticle
+from sqlalchemy.orm import Session
 
 
 @dataclass(frozen=True)
@@ -33,6 +32,23 @@ def _fallback_similarity(query: str, content: str) -> float:
     return len(query_terms & content_terms) / len(query_terms)
 
 
+def _section_keyword_boost(query: str, section: str) -> float:
+    q = query.lower()
+    section_l = section.lower()
+    groups = {
+        "delivery": {"delivery", "shipping", "доставка", "доставк"},
+        "payment": {"payment", "pay", "card", "оплата", "оплат", "карт"},
+        "warranty": {"warranty", "guarantee", "гарант"},
+        "returns": {"return", "refund", "возврат", "вернуть"},
+        "damaged": {"damaged", "broken", "слом", "поврежд"},
+        "tracking": {"tracking", "track", "трек", "отслеж"},
+    }
+    for section_key, terms in groups.items():
+        if section_key in section_l and any(term in q for term in terms):
+            return 0.82
+    return 0.0
+
+
 def retrieve_knowledge(
     db: Session,
     query: str,
@@ -57,7 +73,13 @@ def retrieve_knowledge(
     except Exception:
         scores = [_fallback_similarity(query, text) for text in corpus]
 
-    ranked = sorted(enumerate(scores), key=lambda pair: float(pair[1]), reverse=True)[:top_k]
+    boosted_scores = []
+    for index, score in enumerate(scores):
+        boosted_scores.append(
+            max(float(score), _section_keyword_boost(query, articles[index].section))
+        )
+
+    ranked = sorted(enumerate(boosted_scores), key=lambda pair: float(pair[1]), reverse=True)[:top_k]
     chunks: list[RetrievedChunk] = []
     for index, score in ranked:
         article = articles[index]

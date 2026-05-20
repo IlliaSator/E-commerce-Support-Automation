@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Session
-
 from backend.app.models import Customer
+from sqlalchemy.orm import Session
 
 
 def get_or_create_customer(
