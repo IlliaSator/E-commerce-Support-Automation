@@ -130,9 +130,12 @@ Run:
 
 ```bash
 make evaluate
+make synthetic
+# Windows PowerShell fallback if `make` is not installed:
+python scripts/synthetic_mvp_audit.py
 ```
 
-The AI evaluation reports intent accuracy, escalation precision/recall, auto-resolution accuracy, fallback accuracy, retrieval hit rate, and unsafe auto-replies prevented.
+The AI evaluation reports intent accuracy, escalation precision/recall, auto-resolution accuracy, fallback accuracy, retrieval hit rate, and unsafe auto-replies prevented. The synthetic audit calls the running backend and checks key customer flows, n8n AI-tool endpoints, Postgres/memory workflow nodes, and approximate n8n layout overlaps.
 
 ## Dashboard
 

@@ -1,4 +1,4 @@
-.PHONY: setup test lint train evaluate seed demo up down logs
+.PHONY: setup test lint train evaluate synthetic seed demo up down logs
 
 setup:
 	python -m pip install -e backend[dev]
@@ -17,6 +17,9 @@ train:
 evaluate:
 	python scripts/evaluate_classifier.py
 	docker compose exec backend python scripts/evaluate_ai_system.py
+
+synthetic:
+	python scripts/synthetic_mvp_audit.py
 
 seed:
 	docker compose exec backend python scripts/seed_db.py
